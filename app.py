@@ -1,3 +1,4 @@
+
 import streamlit as st
 import joblib
 import pandas as pd
@@ -8,6 +9,61 @@ from sklearn.preprocessing import LabelEncoder # Import LabelEncoder here
 
 # Set page config for better styling
 st.set_page_config(page_title="Income Prediction App", layout="centered", initial_sidebar_state="expanded")
+
+# Add custom CSS for styling
+st.markdown("""
+<style>
+body {
+    background-color: #f0f2f6; /* Light grey background */
+    font-family: 'Arial', sans-serif;
+}
+.stApp {
+    background-color: #f0f2f6; /* Light grey background for the main app area */
+}
+.st-emotion-cache-1avcm0k { /* Target the main content area */
+    padding: 2rem;
+    background-color: #ffffff; /* White background for content */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+h1, h2, h3 {
+    color: #1E90FF; /* Dodger Blue for headers */
+}
+.stButton>button {
+    background-color: #1E90FF;
+    color: white;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    border: none;
+    transition: all 0.3s ease;
+}
+.stButton>button:hover {
+    background-color: #4682B4; /* Steel Blue on hover */
+    color: white;
+}
+.stTextInput>div>div>input, .stSelectbox>div>div>select, .stSlider>div>div>div>div {
+    border-radius: 5px;
+}
+.stSuccess {
+    background-color: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+}
+.stWarning {
+    background-color: #fff3cd;
+    color: #856404;
+    border-color: #ffeeba;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+}
+</style>
+""", unsafe_allow_html=True)
+
 
 # Define categories explicitly based on the training data
 workclass_categories = ['Private', 'Self-emp-not-inc', 'Local-gov', 'Others', 'State-gov', 'Self-emp-inc', 'Federal-gov']
