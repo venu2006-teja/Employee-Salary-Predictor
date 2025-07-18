@@ -27,6 +27,15 @@ current_dir = os.getcwd()
 model_path = os.path.join(current_dir, "best_model.pkl")
 
 # Load the best model
+try:
+    model = joblib.load(model_path)
+    st.success("Model loaded successfully!")
+except FileNotFoundError:
+    st.error(f"Error: Model file not found at {model_path}. Please ensure 'best_model.pkl' exists in the same directory as app.py.")
+    st.stop() # Stop the app if the model file is not found
+except Exception as e:
+    st.error(f"Error loading model: {e}")
+    st.stop()
 
 
 st.markdown("<h1 style='text-align: center; color: #1E90FF;'>Income Prediction App</h1>", unsafe_allow_html=True)
