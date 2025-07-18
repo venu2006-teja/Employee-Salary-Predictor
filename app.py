@@ -8,7 +8,7 @@ import os
 from sklearn.preprocessing import LabelEncoder # Import LabelEncoder here
 
 # Set page config for better styling
-st.set_page_config(page_title="Income Prediction App", layout="centered", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Income Prediction App", layout="wide", initial_sidebar_state="expanded")
 
 # Add custom CSS for styling
 st.markdown("""
