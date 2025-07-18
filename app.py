@@ -1,4 +1,4 @@
-%%writefile /content/app.py
+#%%writefile /content/app.py
 import streamlit as st
 import joblib
 import pandas as pd
@@ -27,7 +27,7 @@ current_dir = os.getcwd()
 model_path = os.path.join(current_dir, "best_model.pkl")
 
 # Load the best model
-try:
+#try:
     model = joblib.load(model_path)
     st.success("Model loaded successfully!")
 except FileNotFoundError:
