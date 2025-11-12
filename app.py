@@ -6,111 +6,175 @@ import seaborn as sns
 import os
 from sklearn.preprocessing import LabelEncoder
 
-# Get the current directory
-current_dir = os.getcwd()
-st.write(f"Current working directory: {current_dir}")
-st.write(f"Files in current directory: {os.listdir(current_dir)}")
+# --- PAGE CONFIGURATION ---
+st.set_page_config(
+    page_title="💰 Income Prediction App",
+    page_icon="💼",
+    layout="wide"
+)
 
-model_path = os.path.join(current_dir, "best_model.pkl")
+# --- ANIMATED CSS STYLING ---
+st.markdown("""
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
-# Load the best model
-try:
-    model = joblib.load(model_path)
-    st.success("Model loaded successfully!")
-except FileNotFoundError:
-    st.error(f"Error: Model file not found at {model_path}. Please ensure 'best_model.pkl' exists.")
-    st.stop() # Stop the app if the model file is not found
-except Exception as e:
-    st.error(f"Error loading model: {e}")
-    st.stop()
+        html, body, [class*="css"] {
+            font-family: 'Poppins', sans-serif;
+            color: #fff;
+            background: linear-gradient(-45deg, #1f1c2c, #2c5364, #203A43, #0F2027);
+            background-size: 400% 400%;
+            animation: gradientBG 12s ease infinite;
+        }
 
-st.markdown("<h1 style='text-align: center; color: #1E90FF;'>Income Prediction App</h1>", unsafe_allow_html=True)
+        @keyframes gradientBG {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
 
+        h1 {
+            text-align: center;
+            color: #00BFFF;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+            font-size: 42px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #87CEFA;
+            font-weight: 600;
+        }
+
+        .stButton>button {
+            background-color: #00BFFF;
+            color: white;
+            border-radius: 15px;
+            border: none;
+            font-size: 18px;
+            padding: 10px 24px;
+            font-weight: 600;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+            transition: 0.3s;
+        }
+
+        .stButton>button:hover {
+            background-color: #1E90FF;
+            transform: scale(1.05);
+        }
+
+        .main-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 25px;
+            margin-top: 15px;
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.4);
+        }
+
+        .prediction-box {
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 30px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .success-box {
+            background: linear-gradient(90deg, #00C9A7, #92FE9D);
+            color: #003300;
+        }
+
+        .warning-box {
+            background: linear-gradient(90deg, #FF512F, #DD2476);
+            color: white;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+
+        footer {visibility: hidden;}
+    </style>
+""", unsafe_allow_html=True)
+
+# --- TITLE ---
+st.markdown("<h1>💼 Income Prediction App</h1>", unsafe_allow_html=True)
+st.markdown("<h3 style='text-align:center; color:#E0FFFF;'>Predict whether an individual earns more or less than 50K per year using Machine Learning.</h3>", unsafe_allow_html=True)
 st.markdown("---")
 
-st.write("Enter the following information to predict income:")
+# --- LOAD MODEL ---
+current_dir = os.getcwd()
+model_path = os.path.join(current_dir, "best_model.pkl")
 
-# Create input fields for each feature
-with st.sidebar:
-    st.markdown("<h2 style='text-align: center; color: #1E90FF;'>Personal Information</h2>", unsafe_allow_html=True)
-    age = st.slider("Age", min_value=17, max_value=75, value=30)
-    gender = st.selectbox("Gender", ['Male', 'Female'])
-    race = st.selectbox("Race", ['White', 'Black', 'Asian-Pac-Islander', 'Amer-Indian-Eskimo', 'Other'])
-    native_country = st.selectbox("Native Country", ['United-States', 'Cambodia', 'England', 'Puerto-Rico', 'Canada', 'Germany', 'Outlying-US(Guam-USVI-etc)', 'India', 'Japan', 'Greece', 'South', 'China', 'Cuba', 'Iran', 'Honduras', 'Philippines', 'Italy', 'Poland', 'Jamaica', 'Vietnam', 'Mexico', 'Portugal', 'Ireland', 'France', 'Dominican-Republic', 'Ecuador', 'El-Salvador', 'Trinadad&Tobago', 'Peru', 'Hong', 'Holand-Netherlands', 'Thailand', 'Guatemala', 'Nicaragua', 'Scotland', 'Columbia', 'Laos', 'Taiwan', 'Haiti', 'Hungary', 'atemala-Total', 'Cuba-Total', 'England-Total', 'Germany-Total', 'Greece-Total', 'India-Total', 'Iran-Total', 'Ireland-Total', 'Italy-Total', 'Jamaica-Total', 'Japan-Total', 'Laos-Total', 'Mexico-Total', 'Nicaragua-Total', 'Peru-Total', 'Philippines-Total', 'Poland-Total', 'Puerto-Rico-Total', 'Scotland-Total', 'South-Total', 'Taiwan-Total', 'Thailand-Total', 'Trinadad&Tobago-Total', 'United-States-Total', 'Vietnam-Total', 'Yugoslavia', '?'])
+try:
+    model = joblib.load(model_path)
+    st.success("✅ Model loaded successfully!")
+except FileNotFoundError:
+    st.error(f"❌ Model file not found at {model_path}. Please ensure 'best_model.pkl' exists.")
+    st.stop()
+except Exception as e:
+    st.error(f"❌ Error loading model: {e}")
+    st.stop()
 
-st.markdown("<h2 style='text-align: center; color: #1E90FF;'>Employment and Financial Information</h2>", unsafe_allow_html=True)
-workclass = st.selectbox("Workclass", ['Private', 'Self-emp-not-inc', 'Local-gov', 'Others', 'State-gov', 'Self-emp-inc', 'Federal-gov'])
-fnlwgt = st.number_input("Fnlwgt", value=100000)
-educational_num = st.slider("Educational Num", min_value=5, max_value=16, value=10)
-marital_status = st.selectbox("Marital Status", ['Never-married', 'Married-civ-spouse', 'Divorced', 'Married-spouse-absent', 'Separated', 'Married-AF-spouse', 'Widowed'])
-occupation = st.selectbox("Occupation", ['Prof-specialty', 'Craft-repair', 'Exec-managerial', 'Adm-clerical', 'Sales', 'Other-service', 'Machine-op-inspct', 'Others', 'Transport-moving', 'Handlers-cleaners', 'Farming-fishing', 'Tech-support', 'Protective-serv', 'Priv-house-serv', 'Armed-Forces'])
-relationship = st.selectbox("Relationship", ['Husband', 'Not-in-family', 'Own-child', 'Unmarried', 'Wife', 'Other-relative'])
-capital_gain = st.number_input("Capital Gain", value=0)
-capital_loss = st.number_input("Capital Loss", value=0)
-hours_per_week = st.slider("Hours per Week", min_value=1, max_value=99, value=40)
+# --- INPUTS ---
+st.sidebar.image("https://cdn-icons-png.flaticon.com/512/4205/4205973.png", width=130)
+st.sidebar.markdown("<h2>🧍 Personal Details</h2>", unsafe_allow_html=True)
 
-# Create a dictionary with the input values
+age = st.sidebar.slider("Age", 17, 75, 30)
+gender = st.sidebar.selectbox("Gender", ['Male', 'Female'])
+race = st.sidebar.selectbox("Race", ['White', 'Black', 'Asian-Pac-Islander', 'Amer-Indian-Eskimo', 'Other'])
+native_country = st.sidebar.selectbox("Native Country", ['United-States', 'India', 'Canada', 'Mexico', 'Philippines', 'Germany', 'England', 'China', 'Japan', 'Others'])
+
+st.sidebar.markdown("---")
+st.sidebar.markdown("<h2>💼 Employment Info</h2>", unsafe_allow_html=True)
+workclass = st.sidebar.selectbox("Workclass", ['Private', 'Self-emp-not-inc', 'Local-gov', 'State-gov', 'Self-emp-inc', 'Federal-gov'])
+fnlwgt = st.sidebar.number_input("Fnlwgt", value=100000)
+educational_num = st.sidebar.slider("Education Level", 5, 16, 10)
+marital_status = st.sidebar.selectbox("Marital Status", ['Never-married', 'Married-civ-spouse', 'Divorced', 'Widowed'])
+occupation = st.sidebar.selectbox("Occupation", ['Prof-specialty', 'Exec-managerial', 'Adm-clerical', 'Sales', 'Craft-repair', 'Tech-support', 'Others'])
+relationship = st.sidebar.selectbox("Relationship", ['Husband', 'Not-in-family', 'Own-child', 'Unmarried', 'Wife'])
+capital_gain = st.sidebar.number_input("Capital Gain", value=0)
+capital_loss = st.sidebar.number_input("Capital Loss", value=0)
+hours_per_week = st.sidebar.slider("Hours per Week", 1, 99, 40)
+
+# --- INPUT DATAFRAME ---
 input_data = {
-    'age': age,
-    'workclass': workclass,
-    'fnlwgt': fnlwgt,
-    'educational-num': educational_num,
-    'marital-status': marital_status,
-    'occupation': occupation,
-    'relationship': relationship,
-    'race': race,
-    'gender': gender,
-    'capital-gain': capital_gain,
-    'capital-loss': capital_loss,
-    'hours-per-week': hours_per_week,
-    'native-country': native_country
+    'age': age, 'workclass': workclass, 'fnlwgt': fnlwgt,
+    'educational-num': educational_num, 'marital-status': marital_status,
+    'occupation': occupation, 'relationship': relationship, 'race': race,
+    'gender': gender, 'capital-gain': capital_gain, 'capital-loss': capital_loss,
+    'hours-per-week': hours_per_week, 'native-country': native_country
 }
-
-# Convert input data to a DataFrame
 input_df = pd.DataFrame([input_data])
-
-# Preprocess the input data (Label Encoding for categorical features)
 categorical_cols = ['workclass', 'marital-status', 'occupation', 'relationship', 'race', 'gender', 'native-country']
 
-# Define categories explicitly based on the training data
-workclass_categories = ['Federal-gov', 'Local-gov', 'Others', 'Private', 'Self-emp-inc', 'Self-emp-not-inc', 'State-gov']
-marital_status_categories = ['Divorced', 'Married-AF-spouse', 'Married-civ-spouse', 'Married-spouse-absent', 'Never-married', 'Separated', 'Widowed']
-occupation_categories = ['Adm-clerical', 'Armed-Forces', 'Craft-repair', 'Exec-managerial', 'Farming-fishing', 'Handlers-cleaners', 'Machine-op-inspct', 'Others', 'Other-service', 'Priv-house-serv', 'Prof-specialty', 'Protective-serv', 'Sales', 'Tech-support', 'Transport-moving']
-relationship_categories = ['Husband', 'Not-in-family', 'Other-relative', 'Own-child', 'Unmarried', 'Wife']
-race_categories = ['Amer-Indian-Eskimo', 'Asian-Pac-Islander', 'Black', 'Other', 'White']
-gender_categories = ['Female', 'Male']
-native_country_categories = ['?', 'Cambodia', 'Canada', 'China', 'Columbia', 'Cuba', 'Cuba-Total', 'Dominican-Republic', 'Ecuador', 'El-Salvador', 'England', 'England-Total', 'France', 'Germany', 'Germany-Total', 'Greece', 'Greece-Total', 'Guatemala', 'Haiti', 'Holand-Netherlands', 'Honduras', 'Hong', 'Hungary', 'India', 'India-Total', 'Iran', 'Iran-Total', 'Ireland', 'Ireland-Total', 'Italy', 'Italy-Total', 'Jamaica', 'Jamaica-Total', 'Japan', 'Japan-Total', 'Laos', 'Laos-Total', 'Mexico', 'Mexico-Total', 'Nicaragua', 'Nicaragua-Total', 'Others', 'Outlying-US(Guam-USVI-etc)', 'Peru', 'Peru-Total', 'Philippines', 'Philippines-Total', 'Poland', 'Poland-Total', 'Portugal', 'Puerto-Rico', 'Puerto-Rico-Total', 'Scotland', 'Scotland-Total', 'Self-emp-inc', 'South', 'South-Total', 'Taiwan', 'Taiwan-Total', 'Thailand', 'Thailand-Total', 'Trinadad&Tobago', 'Trinadad&Tobago-Total', 'United-States', 'United-States-Total', 'Vietnam', 'Vietnam-Total', 'Yugoslavia', 'atemala-Total']
+encoders = {col: LabelEncoder().fit(input_df[col]) for col in categorical_cols}
+for col in categorical_cols:
+    input_df[col] = encoders[col].transform(input_df[col])
 
-
-encoders = {}
-for col, categories in zip(categorical_cols, [workclass_categories, marital_status_categories, occupation_categories, relationship_categories, race_categories, gender_categories, native_country_categories]):
-    encoder = LabelEncoder()
-    encoder.fit(categories)
-    input_df[col] = encoder.transform(input_df[col])
-
-# Make prediction
-if st.button("Predict Income"):
+# --- PREDICTION ---
+st.markdown("<div class='main-card'>", unsafe_allow_html=True)
+st.markdown("### 🔍 Predict Income")
+if st.button("🚀 Predict Now"):
     try:
         prediction = model.predict(input_df)
-        st.subheader("Prediction:")
         if prediction[0] == '<=50K':
-            st.success("The predicted income is <=50K")
+            st.markdown("<div class='prediction-box success-box'>💵 Predicted Income: ≤ 50K</div>", unsafe_allow_html=True)
         else:
-            st.warning("The predicted income is >50K")
+            st.markdown("<div class='prediction-box warning-box'>🚀 Predicted Income: > 50K</div>", unsafe_allow_html=True)
     except Exception as e:
-        st.error(f"Error during prediction: {e}")
+        st.error(f"Prediction error: {e}")
+st.markdown("</div>", unsafe_allow_html=True)
 
-# Display Feature Importance (assuming the best model is GradientBoostingClassifier)
+# --- FEATURE IMPORTANCE ---
 if hasattr(model, 'feature_importances_'):
-    st.subheader("Feature Importance")
-    feature_importances = pd.Series(model.feature_importances_, index=input_df.columns)
-    feature_importances = feature_importances.sort_values(ascending=False)
-
-    plt.figure(figsize=(10, 6))
-    sns.barplot(x=feature_importances, y=feature_importances.index, palette='viridis')
+    st.markdown("<h2>📊 Feature Importance</h2>", unsafe_allow_html=True)
+    feature_importances = pd.Series(model.feature_importances_, index=input_df.columns).sort_values(ascending=True)
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.barplot(x=feature_importances, y=feature_importances.index, palette='coolwarm', ax=ax)
     plt.title("Feature Importance for Income Prediction")
-    plt.xlabel("Importance Score")
-    plt.ylabel("Features")
-    st.pyplot(plt)
+    st.pyplot(fig)
 else:
-    st.info("Feature importance is not available for the selected model.")
+    st.info("Feature importance is not available for this model.")
